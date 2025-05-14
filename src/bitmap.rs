@@ -159,6 +159,47 @@ impl Bitmap {
     pub fn get_bitmap_capacity(&self) -> usize {
         self.bitmap_capacity
     }
+
+    /// Returns the index of the first unset bit in the bitmap, starting from the least significant bit (LSB).
+    ///
+    /// The bitmap is represented as a vector of u8 integers, where each integer represents 8 bits.
+    /// The function iterates over each byte (u8) in the bitmap and checks each bit within the byte.
+    /// If it finds a bit that is unset (0), it returns the index of that bit.
+    /// The index is calculated as `(word * 8) + bit`, where `word` is the index of the byte in the bitmap,
+    /// and `bit` is the index of the bit within the byte (0-7).
+    ///
+    /// If all bits in the bitmap are set (1), the function returns `None`.
+    ///
+    /// # Arguments
+    ///
+    /// * `self` - A reference to the `Bitmap` struct, which contains the bitmap data and its capacity.
+    ///
+    /// # Returns
+    ///
+    /// * `Option<usize>` - An `Option` containing the index of the first unset bit if found, or `None` if all bits are set.
+    /// 
+    /// # Examples
+    ///
+    /// ```
+    /// let mut bitmap = bitmap::Bitmap::new(16);
+    /// bitmap.set(0);
+    /// bitmap.set(1);
+    /// bitmap.set(2);
+    /// bitmap.set(3);
+    ///
+    /// assert_eq!(bitmap.get_first_unset_bit_index_from_lsb(), Some(4));
+    /// ```
+    pub fn get_first_unset_bit_index_from_lsb(&self) -> Option<usize> {
+        for word in 0..self.bitmap_capacity {
+            let word_chunk = self.map[word];
+            for bit in 0..8_usize {
+                if word_chunk & (1 << bit) == 0 {
+                    return Some((word * 8) + bit);
+                }
+            }
+        }
+        None
+    }
 }
 
 #[cfg(test)]
